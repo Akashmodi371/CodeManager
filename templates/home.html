@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% include "questions/contents.html" %}
+    {% else %}
+        {% include "account/login.html" %}
+    {% endif %}
+    
+{% endblock %}

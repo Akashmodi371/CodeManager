@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <a href="{% url 'main:edit_profile' %}" class="btn btn-primary float-right">Edit Profile</a>
+        <h1>{{user.first_name}} {{user.last_name}}</h2>
+        <div class="text-muted">@{{user.username}}</div>
+        <div>{{user.email}}</div>
+        <span class="float-right">Date joined: {{user.date_joined|date}}</span>
+    </div>
+{% endblock %}

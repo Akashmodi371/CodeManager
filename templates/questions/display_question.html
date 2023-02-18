@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        {% if question.user == user %}
+        <a href="{% url 'main:edit_question' question.id %}" class="btn btn-info float-right">Edit <i class="fas fa-edit"></i></a>
+        <a href="{% url 'main:delete_question' question.id %}" class="btn btn-danger float-right mr-2">Delete <i class="fas fa-trash-alt"></i></a>
+        {% else %}
+        <a href="{% url 'main:make_private' question.id %}" class="btn btn-info float-right" title="Copy this question to your profile and add your solutions there">Make your copy</a>
+        {% endif %}
+        {% if question.link %}
+        <a href="{{question.link}}" class="btn btn-success float-right mr-2" target="_blank" title="Open the original question page">Link</a>
+        {% endif %}
+        <h1>{{question.title}}</h1>
+        <strong class="bg-{{question.difficulty|lower}} mr-3">{{question.difficulty}}</strong>
+
+        {% if question.access == "Private" %}
+            <button class="btn badge badge-danger" title="Only you can view this question" data-toggle="modal" data-target="#make-public-modal"><i class="fa fa-lock"></i> Private</button>
+        {% else %}
+            <button class="btn badge badge-success" title="This question is publicly available" data-toggle="modal" data-target="#make-private-modal"><i class="fa fa-check"></i> Public</button>
+            <i class="mr-3"> Author: @{{question.user}}</i>
+        {% endif %}
+        {% if question.tag.all %}
+            <i> Related Tags: </i>
+            {% for tag_name in question.tag.all %}
+                <a href="{% url 'main:homepage' %}?tag={{tag_name.pk}}" class="badge badge-dark" target="_blank" title="View all {{tag_name.name}} questions">{{tag_name.name}}</a>
+            {% endfor %}
+        {% endif %}
+        <p class='desc-p'>
+            {{ question.description }}
+        </p>
+        <h2>Examples</h2>
+        <p class="desc-p">{{ question.examples }} </p>
+        <!-- Cards collapse using bootstrap -->
+        <!-- <button class="btn btn-primary float-right"><i class="fa fa-plus"></i> Add solution</button> -->
+        <h2>Solutions</h2>
+        <div id="accordion">
+            {% for solution in solutions %}
+                <div class="card mt-4">
+                    <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#solution{{forloop.counter}}" aria-expanded="false" aria-controls="collapseOne">
+                        {% if question.access == "Public" %}
+                            {% if solution.access == "Public" %}
+                            <button class="btn badge badge-success float-right" title="This solution is publicly available" data-toggle="modal" data-target="#make-soln-private"><i class="fa fa-check"></i> Public</button>
+                            <i class="mr-3 float-right"> Author: @{{question.user}}</i>
+                            {% else %}
+                            <button class="btn badge badge-danger float-right" title="Only you can view this solution" data-toggle="modal" data-target="#make-soln-public"><i class="fa fa-lock"></i> Private</button>
+                            {% endif %}
+                        {% endif %}
+                        <h5 class="mb-0">{{solution.title}} </h5>
+                    </div>
+                    <div id="solution{{forloop.counter}}" class="solution-section collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                        <div class="card-body">
+                            <form action="{% url 'main:edit_solution' question.pk solution.pk%}" method="post">
+                                {% csrf_token %}
+                                {% if solution.link %}
+                                    <a href="{{solution.link}}" class="btn btn-primary float-right mr-2" title="Open the original solution link" target="_blank">Goto Solution Link</a>
+                                {% endif %}
+                                <div class="form-title form-group d-none">
+                                    <div class="row">
+                                        <label class="col-md-2 col-form-label" for="solution-title">Solution title</label>
+                                        <input name="soln-title" id="solution-title" type="text" class="form-control col-md-10" value="{{solution.title}}">
+                                    </div>
+                                </div>
+                                <div class="form-link form-group d-none">
+                                    <div class="row">
+                                        <label class="col-md-2 col-form-label" for="solution-link">Solution link</label>
+                                        <input name="link" id="solution-link" type="url" class="form-control col-md-10">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <textarea name="soln-desc" readonly disabled class="desc-p form-description form-control-plaintext {% if not solution.notes %}d-none{% endif %}" rows="10">{{solution.notes}}</textarea>
+                                </div>
+                                <div class="form-row mt-2">
+                                    <select name="theme" class="theme-select custom-select col-sm-3 ml-2 mr-2 mb-3">
+                                        <option value="chrome">Chrome</option>
+                                        <option value="solarized_light">Solarized Light</option>
+                                        <option value="monokai" selected>Monokai</option>
+                                        <option value="tomorrow_night_eighties">Tomorrow Night</option>
+                                        <option value="solarized_dark">Solarized Dark</option>
+                                    </select>
+                                    <select name="language" class="lang-select form-control col-sm-3 ml-auto mr-2 mb-3" value="{{solution.language}}">
+                                        <option value="python" {% ifequal solution.language 'python' %} selected {% endifequal %}>python</option>
+                                        <option value="c_cpp"{% ifequal solution.language 'c_cpp' %} selected {% endifequal %}>C/C++</option>
+                                        <option value="javascript"{% ifequal solution.language 'javascript' %} selected {% endifequal %}>JavaScript</option>
+                                        <option value="java"{% ifequal solution.language 'java' %} selected {% endifequal %}>Java</option>
+                                        <option value="csharp"{% ifequal solution.language 'csharp' %} selected {% endifequal %}>C#</option>
+                                    </select>
+                                    <span class="input-group col-sm-2 mr-2 mb-3">
+                                        <input type="text" class="size-select form-control" placeholder="font-size: 18">
+                                        <div class="input-group-append"><a class="input-group-text fa fa-arrow-right"></a> </div>
+                                    </span>
+                                </div>
+                                <div class="parent col-xs-12">
+                                    <div class="editor">{{solution.program}}</div>
+                                </div>
+                                <input class="ace_control" type="hidden" name="code" value="{{solution.program}}">
+                                <br>
+                                <button class="edit-solution btn btn-primary">Edit solution</button>
+                                <button type="submit" class="submit-solution btn btn-primary d-none">Save Solution</button>
+                                <a href="{% url 'main:delete_solution' question.pk solution.pk %}" class="btn btn-danger">Delete solution</a>
+                                <!-- <input type="reset" class="cancel-edit btn btn-danger d-none"> -->
+                            </form>
+                        </div>
+                    </div> 
+                </div>  <!-- Solution card -->
+            {% endfor %}
+
+            {% if question.user == user %}
+            <div class="card mt-4">
+                <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#addsolution" aria-expanded="false" aria-controls="collapseOne">
+                    <h5 class="mb-0">Add Solution</h5>
+                </div>
+                <div id="addsolution" class="solution-section collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        <div class="container-fluid">
+                            <form action="" method="post">
+                                {%  csrf_token %}
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-md-2 col-form-label" for="solution-title">Solution title</label>
+                                        <input name="soln-title" id="solution-title" type="text" class="form-control col-md-10" placeholder="Solution {{solutions|length|add:"1"}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-md-2 col-form-label" for="solution-link">Solution link</label>
+                                        <input name="link" id="solution-link" type="url" class="form-control col-md-10">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-md-2 col-form-label" for="solution-notes">Solution notes</label>
+                                        <textarea name="soln-desc" id="solution-notes" rows="10" cols="40" class="form-control col-md-10"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-row mt-2">
+                                    <select name="theme" class="theme-select custom-select col-sm-3 ml-2 mr-2 mb-3">
+                                        <option value="chrome">Chrome</option>
+                                        <option value="solarized_light">Solarized Light</option>
+                                        <option value="monokai" selected>Monokai</option>
+                                        <option value="tomorrow_night_eighties">Tomorrow Night</option>
+                                        <option value="solarized_dark">Solarized Dark</option>
+                                    </select>
+                                    <select name="language" class="lang-select form-control col-sm-3 ml-auto mr-2 mb-3">
+                                        <option value="python" selected>python</option>
+                                        <option value="c_cpp">C/C++</option>
+                                        <option value="javascript">JavaScript</option>
+                                        <option value="java">Java</option>
+                                        <option value="csharp">C#</option>
+                                    </select>
+                                    <span class="input-group col-sm-2 mr-2 mb-3">
+                                        <input type="text" class="size-select form-control" placeholder="font-size: 18">
+                                        <div class="input-group-append"><a class="input-group-text fa fa-arrow-right"></a> </div>
+                                    </span>
+                                </div>
+                                <div class="parent col-xs-12">
+                                    <p class="form-text text-muted">The changes you make to the editor below will not be applied until you edit ans save the solution</p>
+                                    <div class="editor"></div>
+                                </div>
+                                <input class="ace_control" type="hidden" name="code">
+                                <br>
+                                <button type="submit" class="submit-solution btn btn-primary">Save solution</button>
+                                <input type="reset" class="btn btn-danger">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>  <!-- Solution card -->
+            {% endif %}
+
+        </div>  <!-- Accordian -->
+    </div>
+
+    <!-- Including the modals for changing access for questions -->
+    {% include "layout/modals.html" %}
+
+{% endblock %}
