@@ -2,6 +2,7 @@
 This is simple application build to store the data structures and algorithms questions and track your progress.
 
 ##Quick Demo
+
 ![Demo](https://github.com/Akashmodi371/CodeManager/blob/master/static/demo.gif)
 
 ##Project Summary
