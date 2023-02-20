@@ -2,13 +2,12 @@
 This is simple application build to store the data structures and algorithms questions and track your progress.
 
 ##Quick Demo
-
-#demo gif
+![Demo](https://github.com/Akashmodi371/CodeManager/blob/master/static/demo.gif)
 
 ##Project Summary
 This web application allow users to store seprate DSA questions in private mode and allows users to make it public for all users. All CRUD operations can be performed.
 
-#web pic
+![Output-Data](https://github.com/Akashmodi371/CodeManager/blob/master/static/demo.jpg)
 
 ---
 
