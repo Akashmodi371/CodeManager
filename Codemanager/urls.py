@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from main import views
 
 urlpatterns = [
@@ -7,4 +7,5 @@ urlpatterns = [
     path('', include("main.urls")),
     path('api/', include('api.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    re_path(r'^jet/', include('jet.urls', 'jet')),
 ]
