@@ -1,13 +1,14 @@
 # Code-Manager
 This is simple application build to store the data structures and algorithms questions and track your progress.
 
-##Quick Demo
+## Quick Demo
+
 ![Demo](https://github.com/Akashmodi371/CodeManager/blob/master/static/demo.gif)
 
-##Project Summary
+## Project Summary
 This web application allow users to store seprate DSA questions in private mode and allows users to make it public for all users. All CRUD operations can be performed.
 
-![Output-Data](https://github.com/Akashmodi371/CodeManager/blob/master/static/demo.jpg)
+![Output-Data](https://github.com/Akashmodi371/CodeManager/blob/master/static/home.jpg)
 
 ---
 
